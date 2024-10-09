@@ -1,0 +1,52 @@
+version: "3.9"
+name: taskTracker
+
+services:
+  frontend:
+    container_name: ${PROJECT:-project}_frontend
+    image: ${PROJECT:-project}-frontend:latest
+    build: frontend
+    volumes:
+      - ./frontend:/frontend
+    ports:
+      - "${FRONTEND_PORT:-8080}:8080"
+    env_file:
+      - ./.env
+    depends_on:
+      - django
+    restart: always
+    networks:
+      - backend_db_network
+  django:
+    container_name: ${PROJECT:-project}_django
+    image: ${PROJECT:-project}-django:latest
+    build: ./backend
+    volumes:
+      - ./backend:/backend
+      - ./backend/static:/backend/static
+    ports:
+      - "${DJANGO_PORT:-8000}:8000"
+    env_file:
+      - ./.env
+    restart: always
+    networks:
+      - backend_db_network
+  nginx:
+    container_name: ${PROJECT:-project}_nginx
+    image: ${PROJECT:-project}-nginx:latest
+    build: nginx
+    volumes:
+      - ./backend/static:/static/static
+      - ./backend/media:/static/media
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    restart: always
+    networks:
+      - backend_db_network
+
+networks:
+  backend_db_network:
+    external: true
+
+volumes:
+  pgdata:
