@@ -8,6 +8,7 @@ chromedriver.log
 geckodriver.log
 
 venv
+static
 .DS_Store
 
 # local env files
